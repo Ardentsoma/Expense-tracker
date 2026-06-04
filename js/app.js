@@ -38,8 +38,7 @@ const CATEGORY_COLORS = {
 let state = {
   expenses: [],
   filter: 'all',
-  searchQuery: '',
-  darkMode: false
+  searchQuery: ''
 };
 
 let pieChart = null;
@@ -109,8 +108,7 @@ function getDayRange() {
 function saveToStorage() {
   try {
     const data = {
-      expenses: state.expenses,
-      darkMode: state.darkMode
+      expenses: state.expenses
     };
     localStorage.setItem('spendify_data', JSON.stringify(data));
   } catch (e) {
@@ -124,7 +122,6 @@ function loadFromStorage() {
     if (raw) {
       const data = JSON.parse(raw);
       state.expenses = data.expenses || [];
-      state.darkMode = data.darkMode || false;
     }
   } catch (e) {
     console.warn('Failed to load from localStorage:', e);
@@ -296,14 +293,14 @@ function renderExpenseItem(expense) {
     <div class="expense-item" data-id="${expense.id}">
       <div class="expense-category-icon ${colorClass}">${icon}</div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">${escapeHtml(expense.name)}</p>
+        <p class="text-sm font-semibold text-gray-900 truncate">${escapeHtml(expense.name)}</p>
         <div class="flex items-center gap-2 mt-0.5">
-          <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-md">${escapeHtml(expense.category)}</span>
-          <span class="text-[10px] text-gray-400 dark:text-gray-500">${formatDate(expense.date)}</span>
+          <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">${escapeHtml(expense.category)}</span>
+          <span class="text-[10px] text-gray-500">${formatDate(expense.date)}</span>
         </div>
       </div>
       <div class="text-right flex-shrink-0 flex items-center gap-2">
-        <p class="text-sm font-bold text-gray-900 dark:text-white">${formatCurrency(expense.amount)}</p>
+        <p class="text-sm font-bold text-gray-900">${formatCurrency(expense.amount)}</p>
         <button class="btn-danger delete-btn" data-id="${expense.id}" title="Delete">
           <i class="fas fa-trash-alt text-[11px]"></i>
         </button>
@@ -334,8 +331,7 @@ function renderPieChart() {
   const labels = Object.keys(breakdown);
   const data = Object.values(breakdown);
 
-  const isDark = state.darkMode;
-  const textColor = isDark ? '#9ca3af' : '#6b7280';
+  const textColor = '#6b7280';
 
   if (pieChart) {
     pieChart.destroy();
@@ -348,7 +344,7 @@ function renderPieChart() {
         labels: ['No data'],
         datasets: [{
           data: [1],
-          backgroundColor: [isDark ? '#374151' : '#e5e7eb'],
+          backgroundColor: ['#e5e7eb'],
           borderWidth: 0
         }]
       },
@@ -389,7 +385,7 @@ function renderPieChart() {
           position: 'bottom',
           labels: {
             color: textColor,
-            font: { size: 10, family: 'Inter' },
+            font: { size: 10, family: 'Bricolage Grotesque' },
             padding: 12,
             boxWidth: 10,
             boxHeight: 10,
@@ -415,9 +411,8 @@ function renderTrendChart() {
   if (!ctx) return;
 
   const trend = getMonthlyTrend();
-  const isDark = state.darkMode;
-  const textColor = isDark ? '#9ca3af' : '#6b7280';
-  const gridColor = isDark ? '#1f2937' : '#f1f5f9';
+  const textColor = '#6b7280';
+  const gridColor = '#f1f5f9';
 
   if (trendChart) {
     trendChart.destroy();
@@ -450,13 +445,13 @@ function renderTrendChart() {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: textColor, font: { size: 10, family: 'Inter' } }
+          ticks: { color: textColor, font: { size: 10, family: 'Bricolage Grotesque' } }
         },
         y: {
           grid: { color: gridColor },
           ticks: {
             color: textColor,
-            font: { size: 9, family: 'Inter' },
+            font: { size: 9, family: 'Bricolage Grotesque' },
             callback: (val) => '₦' + (val / 1000).toFixed(0) + 'k'
           },
           beginAtZero: true
@@ -464,37 +459,6 @@ function renderTrendChart() {
       }
     }
   });
-}
-
-// ============================================
-// Dark Mode
-// ============================================
-function toggleDarkMode() {
-  state.darkMode = !state.darkMode;
-  applyDarkMode();
-  saveToStorage();
-}
-
-function applyDarkMode() {
-  const html = document.documentElement;
-  const icon = document.querySelector('#darkModeToggle i');
-
-  if (state.darkMode) {
-    html.classList.add('dark');
-    if (icon) {
-      icon.className = 'fas fa-sun text-sm';
-    }
-  } else {
-    html.classList.remove('dark');
-    if (icon) {
-      icon.className = 'fas fa-moon text-sm';
-    }
-  }
-
-  // Re-render charts with new theme
-  if (pieChart || trendChart) {
-    renderCharts();
-  }
 }
 
 // ============================================
@@ -602,9 +566,6 @@ function setupEventHandlers() {
   document.getElementById('expenseCategory').addEventListener('change', handleCategoryChange);
   document.getElementById('mobileExpenseCategory').addEventListener('change', handleCategoryChange);
 
-  // Dark mode
-  document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
-
   // Export
   document.getElementById('exportBtn').addEventListener('click', exportCSV);
 
@@ -637,16 +598,16 @@ function handleFormSubmit(formId) {
   // Validation
   if (!name) {
     nameInput.focus();
-    nameInput.classList.add('border-red-400', 'dark:border-red-500');
-    setTimeout(() => nameInput.classList.remove('border-red-400', 'dark:border-red-500'), 2000);
+    nameInput.classList.add('border-gray-400', 'dark:border-gray-500');
+    setTimeout(() => nameInput.classList.remove('border-gray-400', 'dark:border-gray-500'), 2000);
     showToast('Error', 'Please enter an expense name');
     return;
   }
 
   if (!amount || amount <= 0) {
     amountInput.focus();
-    amountInput.classList.add('border-red-400', 'dark:border-red-500');
-    setTimeout(() => amountInput.classList.remove('border-red-400', 'dark:border-red-500'), 2000);
+    amountInput.classList.add('border-gray-400', 'dark:border-gray-500');
+    setTimeout(() => amountInput.classList.remove('border-gray-400', 'dark:border-gray-500'), 2000);
     showToast('Error', 'Amount must be greater than zero');
     return;
   }
@@ -793,7 +754,6 @@ function seedDemoData() {
 function init() {
   loadFromStorage();
   loadFromURL();
-  applyDarkMode();
 
   // If no data, seed demo
   if (state.expenses.length === 0) {
