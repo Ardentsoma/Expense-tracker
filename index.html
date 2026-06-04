@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spendify — Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="font-['Inter'] bg-gray-50 text-gray-900 transition-colors duration-300 dark:bg-gray-950 dark:text-gray-100">
+  <div id="app" class="min-h-screen">
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 transition-all duration-300">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
+              <i class="fas fa-wallet text-white text-sm"></i>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold tracking-tight">Spendify</h1>
+              <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 -mt-0.5">Expense Tracker</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="exportBtn" class="p-2.5 rounded-xl text-gray-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-500/10 dark:hover:text-teal-400 transition-all duration-200" title="Export CSV">
+              <i class="fas fa-download text-sm"></i>
+            </button>
+            <button id="darkModeToggle" class="p-2.5 rounded-xl text-gray-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-500/10 dark:hover:text-teal-400 transition-all duration-200" title="Toggle theme">
+              <i class="fas fa-moon text-sm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <!-- Dashboard -->
+      <section id="dashboard" class="mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div class="dashboard-card">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
+                <i class="fas fa-sun text-teal-500 text-xs"></i>
+              </div>
+              <span class="text-xs font-medium text-gray-400 dark:text-gray-500">Today</span>
+            </div>
+            <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white" id="todayAmount">₦0.00</p>
+          </div>
+          <div class="dashboard-card">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
+                <i class="fas fa-calendar-week text-indigo-500 text-xs"></i>
+              </div>
+              <span class="text-xs font-medium text-gray-400 dark:text-gray-500">This Week</span>
+            </div>
+            <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white" id="weekAmount">₦0.00</p>
+          </div>
+          <div class="dashboard-card">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+                <i class="fas fa-calendar-alt text-amber-500 text-xs"></i>
+              </div>
+              <span class="text-xs font-medium text-gray-400 dark:text-gray-500">This Month</span>
+            </div>
+            <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white" id="monthAmount">₦0.00</p>
+          </div>
+          <div class="dashboard-card">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center">
+                <i class="fas fa-coins text-rose-500 text-xs"></i>
+              </div>
+              <span class="text-xs font-medium text-gray-400 dark:text-gray-500">Total</span>
+            </div>
+            <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white" id="totalAmount">₦0.00</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+        <!-- Left Column: Form -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Add Expense Form -->
+          <section class="card p-5 sm:p-6" id="expenseFormSection">
+            <div class="flex items-center gap-2 mb-5">
+              <div class="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
+                <i class="fas fa-plus text-teal-500 text-[10px]"></i>
+              </div>
+              <h2 class="text-sm font-semibold">Add Expense</h2>
+            </div>
+            <form id="expenseForm" class="space-y-4" autocomplete="off">
+              <div>
+                <label for="expenseName" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Expense Name</label>
+                <input type="text" id="expenseName" placeholder="e.g. Jollof Rice &amp; Chicken" class="input-field" required />
+              </div>
+              <div>
+                <label for="expenseAmount" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Amount (₦)</label>
+                <input type="number" id="expenseAmount" placeholder="0.00" min="0.01" step="0.01" class="input-field" required />
+              </div>
+              <div>
+                <label for="expenseCategory" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Category</label>
+                <select id="expenseCategory" class="input-field">
+                  <option value="Food">🍔 Food</option>
+                  <option value="Transport">🚗 Transport</option>
+                  <option value="Bills">📄 Bills</option>
+                  <option value="Shopping">🛍️ Shopping</option>
+                  <option value="Healthcare">🏥 Healthcare</option>
+                  <option value="Education">📚 Education</option>
+                  <option value="Entertainment">🎬 Entertainment</option>
+                  <option value="Airtime & Data">📱 Airtime &amp; Data</option>
+                  <option value="Miscellaneous">📦 Miscellaneous</option>
+                  <option value="custom">➕ Custom Category</option>
+                </select>
+              </div>
+              <div id="customCategoryWrapper" class="hidden">
+                <label for="customCategory" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Custom Category Name</label>
+                <input type="text" id="customCategory" placeholder="Enter category name" class="input-field" />
+              </div>
+              <button type="submit" class="btn-primary w-full">
+                <i class="fas fa-plus-circle mr-2 text-xs"></i> Add Expense
+              </button>
+            </form>
+          </section>
+
+          <!-- Analytics / Charts -->
+          <section class="card p-5 sm:p-6 hidden sm:block" id="chartsSection">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
+                <i class="fas fa-chart-pie text-teal-500 text-[10px]"></i>
+              </div>
+              <h2 class="text-sm font-semibold">Analytics</h2>
+            </div>
+            <div class="space-y-5">
+              <div>
+                <h3 class="text-xs font-medium text-gray-400 dark:text-gray-500 mb-3">Spending by Category</h3>
+                <div class="relative" style="height: 200px;">
+                  <canvas id="pieChart"></canvas>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-xs font-medium text-gray-400 dark:text-gray-500 mb-3">Monthly Trend</h3>
+                <div class="relative" style="height: 160px;">
+                  <canvas id="trendChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Column: History & List -->
+        <div class="lg:col-span-3 space-y-4">
+          <!-- Search -->
+          <div class="relative">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-600 text-sm"></i>
+            <input type="text" id="searchInput" placeholder="Search expenses by name or category..." class="input-field pl-10" />
+          </div>
+
+          <!-- History Filters -->
+          <div class="flex items-center gap-2 overflow-x-auto py-1 scrollbar-hide" id="filterTabs">
+            <button class="filter-tab active" data-filter="all">All Expenses</button>
+            <button class="filter-tab" data-filter="daily">Today</button>
+            <button class="filter-tab" data-filter="weekly">This Week</button>
+            <button class="filter-tab" data-filter="monthly">This Month</button>
+          </div>
+
+          <!-- Summary Stats -->
+          <div class="grid grid-cols-3 gap-3" id="summaryStats">
+            <div class="stat-card">
+              <p class="stat-label">Total</p>
+              <p class="stat-value" id="statTotal">₦0.00</p>
+            </div>
+            <div class="stat-card">
+              <p class="stat-label">Transactions</p>
+              <p class="stat-value" id="statCount">0</p>
+            </div>
+            <div class="stat-card">
+              <p class="stat-label">Average</p>
+              <p class="stat-value" id="statAverage">₦0.00</p>
+            </div>
+          </div>
+
+          <!-- Expense List -->
+          <div id="expenseList" class="space-y-2 min-h-[200px]">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Mobile add button -->
+    <button id="mobileAddBtn" class="fixed bottom-6 right-6 z-20 w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-xl shadow-teal-500/30 flex items-center justify-center hover:shadow-teal-500/40 hover:scale-105 transition-all duration-200 lg:hidden">
+      <i class="fas fa-plus text-lg"></i>
+    </button>
+
+    <!-- Mobile Add Modal -->
+    <div id="mobileModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="modalOverlay"></div>
+      <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl p-6 animate-slide-up max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-base font-bold">Add Expense</h2>
+          <button id="closeModalBtn" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <i class="fas fa-times text-gray-400"></i>
+          </button>
+        </div>
+        <form id="mobileExpenseForm" class="space-y-4" autocomplete="off">
+          <div>
+            <label for="mobileExpenseName" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Expense Name</label>
+            <input type="text" id="mobileExpenseName" placeholder="e.g. Jollof Rice" class="input-field" required />
+          </div>
+          <div>
+            <label for="mobileExpenseAmount" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Amount (₦)</label>
+            <input type="number" id="mobileExpenseAmount" placeholder="0.00" min="0.01" step="0.01" class="input-field" required />
+          </div>
+          <div>
+            <label for="mobileExpenseCategory" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Category</label>
+            <select id="mobileExpenseCategory" class="input-field">
+              <option value="Food">🍔 Food</option>
+              <option value="Transport">🚗 Transport</option>
+              <option value="Bills">📄 Bills</option>
+              <option value="Shopping">🛍️ Shopping</option>
+              <option value="Healthcare">🏥 Healthcare</option>
+              <option value="Education">📚 Education</option>
+              <option value="Entertainment">🎬 Entertainment</option>
+              <option value="Airtime & Data">📱 Airtime &amp; Data</option>
+              <option value="Miscellaneous">📦 Miscellaneous</option>
+              <option value="custom">➕ Custom Category</option>
+            </select>
+          </div>
+          <div id="mobileCustomCategoryWrapper" class="hidden">
+            <label for="mobileCustomCategory" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Custom Category Name</label>
+            <input type="text" id="mobileCustomCategory" placeholder="Enter category name" class="input-field" />
+          </div>
+          <button type="submit" class="btn-primary w-full">
+            <i class="fas fa-plus-circle mr-2 text-xs"></i> Add Expense
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="confirmOverlay"></div>
+    <div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-4">
+          <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Delete Expense?</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+          Are you sure you want to delete <strong id="confirmExpenseName" class="text-gray-700 dark:text-gray-200"></strong>?
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+          Amount: <strong id="confirmExpenseAmount" class="text-red-500"></strong>
+        </p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-6 -mt-4">
+          <i class="fas fa-info-circle mr-1"></i> This action cannot be undone.
+        </p>
+        <div class="flex gap-3 w-full">
+          <button id="confirmCancel" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200">
+            Cancel
+          </button>
+          <button id="confirmDelete" class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold text-white shadow-lg shadow-red-500/25 transition-all duration-200">
+            <i class="fas fa-trash-alt mr-1.5 text-xs"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="fixed top-4 right-4 z-50 transition-all duration-400 translate-x-full opacity-0">
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 px-5 py-3.5 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-check text-teal-500 text-xs"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900 dark:text-white" id="toastTitle">Success</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500" id="toastMessage">Expense added successfully</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
