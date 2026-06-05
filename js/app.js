@@ -302,7 +302,7 @@ function renderExpenseItem(expense) {
       <div class="text-right flex-shrink-0 flex items-center gap-2">
         <p class="text-sm font-bold text-gray-900">${formatCurrency(expense.amount)}</p>
         <button class="btn-danger delete-btn" data-id="${expense.id}" title="Delete">
-          <i class="fas fa-trash-alt text-[11px]"></i>
+          <i class="fas fa-trash-can text-[11px]"></i>
         </button>
       </div>
     </div>

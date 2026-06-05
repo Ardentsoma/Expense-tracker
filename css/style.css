@@ -2,7 +2,7 @@
    Spendify — Custom Styles
    ============================================ */
 
-*, *::before, *::after {
+* {
   font-family: 'Bricolage Grotesque', system-ui, sans-serif;
 }
 
@@ -318,9 +318,7 @@ select.input-field {
 }
 
 /* --- Responsive Tweaks --- */
-@media (max-width: 1023px) {
-  #chartsSection { display: none !important; }
-}
+
 
 @media (min-width: 1024px) {
   #mobileAddBtn { display: none !important; }
