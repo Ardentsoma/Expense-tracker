@@ -713,39 +713,15 @@ function loadFromURL() {
 }
 
 // ============================================
-// Seed Demo Data
+// Init
 // ============================================
-function seedDemoData() {
-  if (state.expenses.length > 0) return;
+function init() {
+  loadFromStorage();
+  loadFromURL();
 
-  const now = new Date();
-  const demoExpenses = [
-    { name: 'Jollof Rice & Chicken', amount: 5000, category: 'Food', date: new Date(now) },
-    { name: 'Bolt Ride to Ikeja', amount: 2500, category: 'Transport', date: new Date(now) },
-    { name: 'MTN Airtime', amount: 1000, category: 'Airtime & Data', date: new Date(now) },
-    { name: 'Electricity Bills', amount: 12000, category: 'Bills', date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000) },
-    { name: 'Netflix Subscription', amount: 2900, category: 'Entertainment', date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000) },
-    { name: 'New Sneakers', amount: 35000, category: 'Shopping', date: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000) },
-    { name: 'Pharmacy - Malaria Meds', amount: 4500, category: 'Healthcare', date: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000) },
-    { name: 'Online Course Subscription', amount: 15000, category: 'Education', date: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000) },
-    { name: 'Groceries at Shoprite', amount: 18500, category: 'Food', date: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000) },
-    { name: 'Data Bundle 10GB', amount: 3000, category: 'Airtime & Data', date: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000) },
-    { name: 'Movie Tickets', amount: 4000, category: 'Entertainment', date: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000) },
-    { name: 'Diesel for Generator', amount: 25000, category: 'Bills', date: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000) }
-  ];
+  setupEventHandlers();
 
-  demoExpenses.forEach(e => {
-    state.expenses.push({
-      id: generateId(),
-      name: e.name,
-      amount: e.amount,
-      category: e.category,
-      date: e.date.toISOString(),
-      createdAt: e.date.getTime()
-    });
-  });
-
-  saveToStorage();
+  refreshUI();
 }
 
 // ============================================
@@ -754,11 +730,6 @@ function seedDemoData() {
 function init() {
   loadFromStorage();
   loadFromURL();
-
-  // If no data, seed demo
-  if (state.expenses.length === 0) {
-    seedDemoData();
-  }
 
   setupEventHandlers();
   refreshUI();
