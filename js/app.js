@@ -553,13 +553,35 @@ function setupEventHandlers() {
 
   // Search
   let searchTimeout;
-  document.getElementById('searchInput').addEventListener('input', (e) => {
+  const searchInput = document.getElementById('searchInput');
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+  function toggleClearButton() {
+    if (searchInput.value.trim()) {
+      clearSearchBtn.classList.remove('hidden');
+    } else {
+      clearSearchBtn.classList.add('hidden');
+    }
+  }
+
+  searchInput.addEventListener('input', (e) => {
+    toggleClearButton();
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       state.searchQuery = e.target.value.trim();
       updateURL();
       refreshUI();
     }, 300);
+  });
+
+  clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    state.searchQuery = '';
+    clearSearchBtn.classList.add('hidden');
+    clearTimeout(searchTimeout);
+    updateURL();
+    refreshUI();
+    searchInput.focus();
   });
 
   // Category custom
@@ -709,6 +731,7 @@ function loadFromURL() {
   if (q) {
     state.searchQuery = q;
     document.getElementById('searchInput').value = q;
+    document.getElementById('clearSearchBtn').classList.remove('hidden');
   }
 }
 
